@@ -3,8 +3,7 @@ import "./style.css";
 const app: HTMLDivElement = document.querySelector("#app")!;
 
 const gameName = "Wake Me Up";
-//const testing = "test";
-const buttonText = "💤🛌🏻😴";
+let counter: number = 0;
 
 document.title = gameName;
 
@@ -18,7 +17,18 @@ const button: HTMLButtonElement = document.createElement("button");
 
 //set the button text
 button.type = "button";
-button.innerHTML = buttonText;
+button.textContent = "💤🛌🏻😴";
 app.append(button);
 
-//const mainButton: HTMLButtonElement = document.createElement("button");
+//create slap object
+const slapDisplay: HTMLDivElement = document.createElement("div");
+slapDisplay.textContent = `slap count: ${counter}`;
+
+button.addEventListener("click", countFunction);
+
+app.append(slapDisplay);
+
+function countFunction() {
+  counter++;
+  slapDisplay.textContent = `slap count: ${counter}`;
+}
