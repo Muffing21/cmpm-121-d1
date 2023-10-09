@@ -4,6 +4,8 @@ const app: HTMLDivElement = document.querySelector("#app")!;
 
 const gameName = "Wake Me Up";
 let counter: number = 0;
+let timer: DOMHighResTimeStamp = 0;
+let then = performance.now();
 
 document.title = gameName;
 
@@ -28,9 +30,22 @@ button.addEventListener("click", countFunction);
 
 app.append(slapDisplay);
 
-setInterval(countFunction, 1000);
+// setInterval(countFunction, 1000);
+
+window.requestAnimationFrame(frameFunction);
 
 function countFunction() {
   counter++;
   slapDisplay.textContent = `slap count: ${counter}`;
+}
+
+function frameFunction() {
+  timer += performance.now() - then;
+  if (timer >= 1000) {
+    counter += 1;
+    slapDisplay.textContent = `slap count: ${counter}`;
+    timer = 0;
+  }
+  then = performance.now();
+  window.requestAnimationFrame(frameFunction);
 }
