@@ -28,6 +28,8 @@ button.addEventListener("click", countFunction);
 
 app.append(slapDisplay);
 
+setInterval(countFunction, 1000);
+
 function countFunction() {
   counter++;
   slapDisplay.textContent = `slap count: ${counter}`;
