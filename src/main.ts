@@ -9,6 +9,7 @@ let then = performance.now();
 const item = { A: 0, B: 0, C: 0 };
 const itemCost = { A: 10, B: 100, C: 1000 };
 let growthRate: number = 0;
+const costUp: number = 1.15;
 
 document.title = gameName;
 
@@ -92,20 +93,31 @@ function frameFunction() {
     if (item.A > 0) {
       counter += 0.1;
       slapDisplay.textContent = `slap count: ${counter.toFixed(1)}`;
+      upgradeButtonA.textContent = `Cost ${round(itemCost.A)}: A Helping Hand`;
       itemDisplayA.textContent = `number of Helping Hands: ${item.A}`;
-      growthDisplay.textContent = `Growth Rate: ${growthRate} slaps/sec`;
+      growthDisplay.textContent = `Growth Rate: ${growthRate.toFixed(
+        1,
+      )} slaps/sec`;
     }
     if (item.B > 0) {
       counter += 2;
       slapDisplay.textContent = `slap count: ${counter.toFixed(1)}`;
+      upgradeButtonB.textContent = `Cost ${round(itemCost.B)}: Slap Machine`;
       itemDisplayB.textContent = `number of Slap Machines: ${item.B}`;
-      growthDisplay.textContent = `Growth Rate: ${growthRate} slaps/sec`;
+      growthDisplay.textContent = `Growth Rate: ${growthRate.toFixed(
+        1,
+      )} slaps/sec`;
     }
     if (item.C > 0) {
       counter += 50;
       slapDisplay.textContent = `slap count: ${counter.toFixed(1)}`;
+      upgradeButtonC.textContent = `Cost ${round(
+        itemCost.C,
+      )}: World Champion Slapper`;
       itemDisplayC.textContent = `number of World Slapping Champions: ${item.C}`;
-      growthDisplay.textContent = `Growth Rate: ${growthRate} slaps/sec`;
+      growthDisplay.textContent = `Growth Rate: ${growthRate.toFixed(
+        1,
+      )} slaps/sec`;
     }
     timer = 0;
   }
@@ -123,6 +135,7 @@ function upgradeFunction() {
     counter -= itemCost.A;
     item.A += 1;
     growthRate += 0.1;
+    itemCost.A = round(itemCost.A) * costUp;
   }
 }
 function upgradeFunctionB() {
@@ -130,6 +143,7 @@ function upgradeFunctionB() {
     counter -= itemCost.B;
     item.B += 1;
     growthRate += 2;
+    itemCost.B = round(itemCost.B) * costUp;
   }
 }
 
@@ -138,5 +152,11 @@ function upgradeFunctionC() {
     counter -= itemCost.C;
     item.C += 1;
     growthRate += 50;
+    itemCost.B = round(itemCost.B) * costUp;
   }
+}
+
+function round(num: number) {
+  const roundedNum = Math.round(num * 100) / 100;
+  return roundedNum;
 }
