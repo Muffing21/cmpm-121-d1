@@ -41,6 +41,7 @@ interface Item {
   emoji: string;
   buttons: HTMLButtonElement;
   accuGrowth: number;
+  desc: string;
 }
 
 const availableItems: Item[] = [
@@ -52,6 +53,7 @@ const availableItems: Item[] = [
     emoji: "🙋",
     buttons: document.createElement("button"),
     accuGrowth: 0,
+    desc: "call a friend to help",
   },
   {
     name: "Slap Machine",
@@ -61,6 +63,7 @@ const availableItems: Item[] = [
     emoji: "🗿",
     buttons: document.createElement("button"),
     accuGrowth: 0,
+    desc: "*beep* *boop*",
   },
   {
     name: "World Champion Slapper",
@@ -70,6 +73,27 @@ const availableItems: Item[] = [
     emoji: "🏋️‍♂️",
     buttons: document.createElement("button"),
     accuGrowth: 0,
+    desc: "the strongest hand slap",
+  },
+  {
+    name: "Gym Socks",
+    cost: 2000,
+    growth: 100,
+    amount: 0,
+    emoji: "🧦",
+    buttons: document.createElement("button"),
+    accuGrowth: 0,
+    desc: "maybe the smell will help",
+  },
+  {
+    name: "Adam Smith",
+    cost: 4000,
+    growth: 200,
+    amount: 0,
+    emoji: "🧔🏼",
+    buttons: document.createElement("button"),
+    accuGrowth: 0,
+    desc: "his slap will haunt your dream",
   },
 ];
 
@@ -96,7 +120,7 @@ function improvedFrameFunc() {
   fps = Math.round(1000 / (performance.now() - then));
   for (let i = 0; i < availableItems.length; i++) {
     if (availableItems[i].amount > 0) {
-      counter += availableItems[i].growth / fps;
+      counter += availableItems[i].accuGrowth / fps;
       slapDisplay.textContent = `🖐️ slap count: ${counter.toFixed(1)}`;
     }
     availableItems[i].buttons.disabled = counter < availableItems[i].cost;
@@ -113,9 +137,9 @@ function updatedUpgrade(item: Item) {
     growthRate += item.growth;
     item.cost = round(item.cost) * costUp;
     item.accuGrowth += item.growth;
-    item.buttons.textContent = `${item.name} (${item.amount}): Cost ${round(
-      item.cost,
-    )} ${item.emoji}`;
+    item.buttons.textContent = `${item.emoji} ${item.name} (${
+      item.amount
+    })| Cost ${round(item.cost)} | ${item.desc} |`;
     growthDisplay.textContent = `📈 Slap Assist Rate: ${growthRate.toFixed(
       1,
     )} slaps/sec`;
@@ -124,9 +148,11 @@ function updatedUpgrade(item: Item) {
 
 function createItems(availableItems: Item[]) {
   for (let i = 0; i < availableItems.length; i++) {
-    availableItems[i].buttons.textContent = `${availableItems[i].name} (${
-      availableItems[i].amount
-    }): Cost ${round(availableItems[i].cost)} ${availableItems[i].emoji}`;
+    availableItems[i].buttons.textContent = `${availableItems[i].emoji} ${
+      availableItems[i].name
+    } (${availableItems[i].amount}) | Cost ${round(availableItems[i].cost)} | ${
+      availableItems[i].desc
+    } |`;
     availableItems[i].buttons.disabled = counter < availableItems[i].cost;
     app.append(availableItems[i].buttons);
   }
