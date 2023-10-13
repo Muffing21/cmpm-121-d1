@@ -4,11 +4,7 @@ const app: HTMLDivElement = document.querySelector("#app")!;
 
 const gameName = "Wake Me Up";
 let counter: number = 0;
-//let timer: DOMHighResTimeStamp = 0;
 let then = performance.now();
-// const item = { A: 0, B: 0, C: 0 };
-// const itemCost = { A: 10, B: 100, C: 1000 };
-// const itemGrowth = { A: 0.1, B: 2, C: 50 };
 let growthRate: number = 0;
 const costUp: number = 1.15;
 let fps = 0;
@@ -20,32 +16,22 @@ const sleepHeader = document.createElement("h1");
 header.innerHTML = gameName;
 sleepHeader.innerHTML = "💤🛌🏻";
 
-app.append(header);
-app.append(sleepHeader);
-
 //create button elements
 const button: HTMLButtonElement = document.createElement("button");
-const upgradeButtonA: HTMLButtonElement = document.createElement("button");
-const upgradeButtonB: HTMLButtonElement = document.createElement("button");
-const upgradeButtonC: HTMLButtonElement = document.createElement("button");
-
-//set the button text
-button.type = "button";
-button.textContent = "SLAP 🖐️";
-//upgrade button text
-upgradeButtonA.type = "button";
-upgradeButtonA.textContent = "Cost 10: A Helping Hand 🙋";
-upgradeButtonB.type = "button";
-upgradeButtonB.textContent = "Cost 100: Slap Machine 🗿";
-upgradeButtonC.type = "button";
-upgradeButtonC.textContent = "Cost 1000: World Champion Slapper 🏋️‍♂️";
-
-//create div object
 const slapDisplay: HTMLDivElement = document.createElement("div");
 const growthDisplay: HTMLDivElement = document.createElement("div");
-const itemDisplayA: HTMLDivElement = document.createElement("div");
-const itemDisplayB: HTMLDivElement = document.createElement("div");
-const itemDisplayC: HTMLDivElement = document.createElement("div");
+
+//set the button text
+button.textContent = "SLAP 🖐️";
+slapDisplay.textContent = `🖐️ slap count: ${counter.toFixed(1)}`;
+growthDisplay.textContent = `📈 Slap Assist Rate: ${growthRate} slaps/sec`;
+
+//append starter buttons
+app.append(header);
+app.append(sleepHeader);
+app.append(button);
+app.append(slapDisplay);
+app.append(growthDisplay);
 
 interface Item {
   name: string;
@@ -53,8 +39,8 @@ interface Item {
   growth: number;
   amount: number;
   emoji: string;
-  buttonElement: HTMLButtonElement;
-  itemDisplay: HTMLDivElement;
+  buttons: HTMLButtonElement;
+  accuGrowth: number;
 }
 
 const availableItems: Item[] = [
@@ -64,8 +50,8 @@ const availableItems: Item[] = [
     growth: 0.1,
     amount: 0,
     emoji: "🙋",
-    buttonElement: upgradeButtonA,
-    itemDisplay: itemDisplayA,
+    buttons: document.createElement("button"),
+    accuGrowth: 0,
   },
   {
     name: "Slap Machine",
@@ -73,8 +59,8 @@ const availableItems: Item[] = [
     growth: 2,
     amount: 0,
     emoji: "🗿",
-    buttonElement: upgradeButtonB,
-    itemDisplay: itemDisplayB,
+    buttons: document.createElement("button"),
+    accuGrowth: 0,
   },
   {
     name: "World Champion Slapper",
@@ -82,54 +68,28 @@ const availableItems: Item[] = [
     growth: 50,
     amount: 0,
     emoji: "🏋️‍♂️",
-    buttonElement: upgradeButtonC,
-    itemDisplay: itemDisplayC,
+    buttons: document.createElement("button"),
+    accuGrowth: 0,
   },
 ];
 
-slapDisplay.textContent = `🖐️ slap count: ${counter.toFixed(1)}`;
-growthDisplay.textContent = `📈 Growth Rate: ${growthRate} slaps/sec`;
-itemDisplayA.textContent = `number of 🙋: ${availableItems[0].amount}`;
-itemDisplayB.textContent = `number of 🗿: ${availableItems[0].amount}`;
-itemDisplayC.textContent = `number of 🏋️‍♂️: ${availableItems[0].amount}`;
-
-//append buttons
-app.append(button);
-app.append(upgradeButtonA);
-app.append(upgradeButtonB);
-app.append(upgradeButtonC);
-
-app.append(slapDisplay);
-app.append(growthDisplay);
-app.append(itemDisplayA);
-app.append(itemDisplayB);
-app.append(itemDisplayC);
-
-// setInterval(countFunction, 1000);
-
-//misc
-if (counter < 10) {
-  upgradeButtonA.disabled = true;
-}
-if (counter < 100) {
-  upgradeButtonB.disabled = true;
-}
-if (counter < 1000) {
-  upgradeButtonC.disabled = true;
-}
-
 //event listener
-upgradeButtonA.addEventListener("click", upgradeFunction);
-upgradeButtonB.addEventListener("click", upgradeFunctionB);
-upgradeButtonC.addEventListener("click", upgradeFunctionC);
-
 button.addEventListener("click", countFunction);
 
-window.requestAnimationFrame(improvedFrameFunc);
+createItems(availableItems);
 
+for (let i = 0; i < availableItems.length; i++) {
+  availableItems[i].buttons.addEventListener("click", () => {
+    updatedUpgrade(availableItems[i]);
+  });
+}
+
+requestAnimationFrame(improvedFrameFunc);
+
+// functions /////////////////////////////////////////////////
 function countFunction() {
   counter++;
-  slapDisplay.textContent = `slap count: ${counter}`;
+  slapDisplay.textContent = `🖐️ slap count: ${counter}`;
 }
 
 function improvedFrameFunc() {
@@ -138,90 +98,37 @@ function improvedFrameFunc() {
     if (availableItems[i].amount > 0) {
       counter += availableItems[i].growth / fps;
       slapDisplay.textContent = `🖐️ slap count: ${counter.toFixed(1)}`;
-      availableItems[i].buttonElement.textContent = `${
-        availableItems[i].name
-      }: Cost ${round(availableItems[i].cost)} ${availableItems[i].emoji}`;
-      availableItems[i].itemDisplay.textContent =
-        `number of` +
-        `${availableItems[i].emoji}` +
-        `: ${availableItems[i].amount}`;
-      growthDisplay.textContent = `📈 Growth Rate: ${growthRate.toFixed(
-        1,
-      )} slaps/sec`;
     }
-    availableItems[i].buttonElement.disabled = counter < availableItems[i].cost;
+    availableItems[i].buttons.disabled = counter < availableItems[i].cost;
   }
   then = performance.now();
-  window.requestAnimationFrame(improvedFrameFunc);
+  fps = 0;
+  requestAnimationFrame(improvedFrameFunc);
 }
 
-//this is the old version of the function pre data driven design
-// function frameFunction() {
-//   //timer += performance.now() - then;
-//   fps = Math.round(1000 / (performance.now() - then));
-//   if (item.A > 0) {
-//     counter += itemGrowth.A / fps;
-//     slapDisplay.textContent = `🖐️ slap count: ${counter.toFixed(1)}`;
-//     upgradeButtonA.textContent = `A Helping Hand: Cost ${round(itemCost.A)} 🙋`;
-//     itemDisplayA.textContent = `number of 🙋: ${item.A}`;
-//     growthDisplay.textContent = `📈 Growth Rate: ${growthRate.toFixed(
-//       1,
-//     )} slaps/sec`;
-//   }
-//   if (item.B > 0) {
-//     counter += itemGrowth.B / fps;
-//     slapDisplay.textContent = `🖐️ slap count: ${counter.toFixed(0)}`;
-//     upgradeButtonB.textContent = `Cost ${round(itemCost.B)}: Slap Machine 🗿`;
-//     itemDisplayB.textContent = `number of 🗿: ${item.B}`;
-//     growthDisplay.textContent = `📈 Growth Rate: ${growthRate.toFixed(
-//       1,
-//     )} slaps/sec`;
-//   }
-//   if (item.C > 0) {
-//     counter += itemGrowth.C / fps;
-//     slapDisplay.textContent = `🖐️ slap count: ${counter.toFixed(0)}`;
-//     upgradeButtonC.textContent = `Cost ${round(itemCost.C)}: World Champion Slapper 🏋️‍♂️`;
-//     itemDisplayC.textContent = `number of 🏋️‍♂️: ${item.C}`;
-//     growthDisplay.textContent = `📈 Growth Rate: ${growthRate.toFixed(
-//       1,
-//     )} slaps/sec`;
-//   }
-//   //timer = 0;
-
-//   upgradeButtonA.disabled = counter < itemCost.A;
-//   upgradeButtonB.disabled = counter < itemCost.B;
-//   upgradeButtonC.disabled = counter < itemCost.C;
-
-//   then = performance.now();
-//   window.requestAnimationFrame(frameFunction);
-// }
-
-function upgradeFunction() {
-  if (counter >= availableItems[0].cost) {
-    counter -= availableItems[0].cost;
-    availableItems[0].amount += 1;
-    growthRate += 0.1;
-    availableItems[0].cost = round(availableItems[0].cost) * costUp;
-    availableItems[0].growth += 0.1;
-  }
-}
-function upgradeFunctionB() {
-  if (counter >= availableItems[1].cost) {
-    counter -= availableItems[1].cost;
-    availableItems[1].amount += 1;
-    growthRate += 2;
-    availableItems[1].cost = round(availableItems[1].cost) * costUp;
-    availableItems[1].growth += 2;
+function updatedUpgrade(item: Item) {
+  if (counter >= item.cost) {
+    counter -= item.cost;
+    item.amount += 1;
+    growthRate += item.growth;
+    item.cost = round(item.cost) * costUp;
+    item.accuGrowth += item.growth;
+    item.buttons.textContent = `${item.name} (${item.amount}): Cost ${round(
+      item.cost,
+    )} ${item.emoji}`;
+    growthDisplay.textContent = `📈 Slap Assist Rate: ${growthRate.toFixed(
+      1,
+    )} slaps/sec`;
   }
 }
 
-function upgradeFunctionC() {
-  if (counter >= availableItems[2].cost) {
-    counter -= availableItems[2].cost;
-    availableItems[2].amount += 1;
-    growthRate += 50;
-    availableItems[2].cost = round(availableItems[2].cost) * costUp;
-    availableItems[2].growth += 50;
+function createItems(availableItems: Item[]) {
+  for (let i = 0; i < availableItems.length; i++) {
+    availableItems[i].buttons.textContent = `${availableItems[i].name} (${
+      availableItems[i].amount
+    }): Cost ${round(availableItems[i].cost)} ${availableItems[i].emoji}`;
+    availableItems[i].buttons.disabled = counter < availableItems[i].cost;
+    app.append(availableItems[i].buttons);
   }
 }
 
